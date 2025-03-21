@@ -1,0 +1,50 @@
+{
+    "manifest_version": 3,
+    "name": "deX",
+    "version": "1.0",
+    "description": "An alternative to bookmarks.",
+    "action": {
+        "default_popup": "src/popup.html",
+        "default_icon": {
+            "16": "icon.png",
+            "48": "icon.png",
+            "128": "icon.png"
+        },
+        "default_title": "deX"
+    },
+    "permissions": [
+        "storage",
+        "activeTab",
+        "scripting",
+        "tabs",
+        "sidePanel"
+    ],
+    "host_permissions": [
+        "<all_urls>"
+    ],
+    "web_accessible_resources": [
+        {
+            "resources": ["src/lib/Readability.js"],
+            "matches": ["<all_urls>"]
+        }
+    ],
+    "content_scripts": [
+        {
+            "matches": ["<all_urls>"],
+            "js": ["src/lib/Readability.js"],
+            "run_at": "document_end"
+        }
+    ],
+    "background": {
+        "service_worker": "src/background.js"
+    },
+    "side_panel": {
+        "default_path": "src/finder.html"
+    },
+    "icons": {
+        "16": "icon.png",
+        "48": "icon.png",
+        "128": "icon.png"
+    }
+}
+  
