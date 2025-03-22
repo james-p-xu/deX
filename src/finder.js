@@ -140,7 +140,8 @@ document.addEventListener("DOMContentLoaded", function() {
                             extractedContent: result.result.content || "",
                             extractedText: result.result.textContent || "",
                             dateAdded: new Date().toISOString(),
-                            extractionMethod: "readability"
+                            extractionMethod: "readability",
+                            read: false
                         };
                         
                         const savedLinks = [...data.savedLinks, newLink];
@@ -160,7 +161,8 @@ document.addEventListener("DOMContentLoaded", function() {
                             extractedContent: "",
                             extractedText: "",
                             dateAdded: new Date().toISOString(),
-                            extractionMethod: "error"
+                            extractionMethod: "error",
+                            read: false
                         };
                         
                         const savedLinks = [...data.savedLinks, newLink];
@@ -225,10 +227,19 @@ document.addEventListener("DOMContentLoaded", function() {
                 return;
             }
             
-            data.savedLinks.sort((a, b) => new Date(b.dateAdded) - new Date(a.dateAdded));
+            // Update and save any links that don't have a read property
+            const updatedLinks = data.savedLinks.map(link => ({
+                ...link,
+                read: link.read !== undefined ? link.read : false
+            }));
+            if (JSON.stringify(updatedLinks) !== JSON.stringify(data.savedLinks)) {
+                chrome.storage.local.set({savedLinks: updatedLinks});
+            }
+            
+            updatedLinks.sort((a, b) => new Date(b.dateAdded) - new Date(a.dateAdded));
             
             linkList.innerHTML = "";
-            data.savedLinks.forEach(link => {
+            updatedLinks.forEach(link => {
                 const li = document.createElement("li");
                 li.className = "link-item";
                 li.innerHTML = `
@@ -237,8 +248,28 @@ document.addEventListener("DOMContentLoaded", function() {
                         <button class="delete-button">×</button>
                     </div>
                     <div class="link-description">${link.description || "<No description>"}</div>
-                    <div class="link-date">${new Date(link.dateAdded).toLocaleDateString()}</div>
+                    <div class="link-footer">
+                        <div class="link-date">${new Date(link.dateAdded).toLocaleDateString()}</div>
+                        <label class="read-toggle">
+                            <input type="checkbox" ${link.read ? 'checked' : ''} title="${link.read ? 'Mark as unread' : 'Mark as read'}">
+                        </label>
+                    </div>
                 `;
+                
+                const toggleCheckbox = li.querySelector('input[type="checkbox"]');
+                if (toggleCheckbox) {
+                    toggleCheckbox.onchange = function(e) {
+                        const newReadState = e.target.checked;
+                        chrome.storage.local.get({savedLinks: []}, function(data) {
+                            const updatedLinks = data.savedLinks.map(l => 
+                                l.url === link.url ? {...l, read: newReadState} : l
+                            );
+                            chrome.storage.local.set({savedLinks: updatedLinks}, function() {
+                                showToast(`Marked as ${newReadState ? 'read' : 'unread'}`, 'info');
+                            });
+                        });
+                    };
+                }
                 
                 const deleteBtn = li.querySelector(".delete-button");
                 if (deleteBtn) {

@@ -518,12 +518,9 @@ button:active {
 
 .link-header {
     display: flex;
-    align-items: flex-start;
     justify-content: space-between;
+    align-items: center;
     gap: 10px;
-    padding-right: 25px;
-    width: 100%;
-    box-sizing: border-box;
 }
 
 .link-header a {
@@ -598,4 +595,41 @@ body:not(.dark-theme) .dark-icon {
 
 body:not(.dark-theme) .light-icon {
     display: none;
+}
+
+.link-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.read-toggle {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.read-toggle input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    margin: 0;
+    cursor: pointer;
+    accent-color: var(--accent-color);
+}
+
+.read-toggle input[type="checkbox"]:hover {
+    transform: scale(1.1);
+    transition: transform 0.2s ease;
+}
+
+.link-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 8px;
+}
+
+.link-date {
+    color: var(--text-secondary);
+    font-size: 14px;
 }
